@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id("com.wolfyscript.wolfyutils.spigot.java-conventions")
     alias(libs.plugins.goooler.shadow)
@@ -31,7 +29,7 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-tasks.named<ProcessResources>("processResources") {
+tasks.processResources {
     expand(project.properties)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
@@ -70,7 +68,7 @@ minecraftServers {
     }
 }
 
-tasks.named<ShadowJar>("shadowJar") {
+tasks.shadowJar {
     dependsOn(project(":core").tasks.named("shadowJar"))
     mustRunAfter("jar")
     mergeServiceFiles()

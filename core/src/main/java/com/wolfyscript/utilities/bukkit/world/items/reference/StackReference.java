@@ -60,6 +60,16 @@ public class StackReference implements Copyable<StackReference> {
         return new StackReference(WolfyUtilCore.getInstance(), itemStack.getAmount(), 1, new BukkitStackIdentifier(itemStack), itemStack);
     }
 
+    @Deprecated
+    public StackReference(@NotNull WolfyUtilCore core, @NotNull StackIdentifier identifier, double weight, int amount, @Nullable ItemStack itemStack) {
+        this(core, amount, weight, identifier, itemStack);
+    }
+
+    @Deprecated
+    public StackReference(@NotNull WolfyUtilCore core, @NotNull NamespacedKey parserKey, int amount, double weight, @Nullable ItemStack item) {
+        this(core, amount, weight, parserKey, item);
+    }
+
     public StackReference(@NotNull WolfyUtilCore core, int amount, double weight, @NotNull StackIdentifier identifier, @Nullable ItemStack itemStack) {
         this.core = core;
         this.amount = amount;

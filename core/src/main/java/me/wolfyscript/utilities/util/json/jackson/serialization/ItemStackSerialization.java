@@ -26,20 +26,29 @@ import me.wolfyscript.utilities.util.json.jackson.JacksonUtil;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
+import java.util.List;
 import java.util.Map;
 
 public class ItemStackSerialization {
 
     public static void create(SimpleModule module){
+        module.addSerializer(JavaPlugin.class, new com.fasterxml.jackson.databind.ser.std.StdSerializer<>(JavaPlugin.class) {
+            @Override
+            public void serialize(JavaPlugin value, com.fasterxml.jackson.core.JsonGenerator gen, com.fasterxml.jackson.databind.SerializerProvider provider) throws java.io.IOException {
+                gen.writeNull();
+            }
+        });
+
         JacksonUtil.addSerializerAndDeserializer(module, ItemStack.class, (itemStack, gen, serializerProvider) -> {
             if (itemStack != null) {
                 var yaml = new Yaml();
                 var config = new YamlConfiguration();
                 config.set("i", itemStack);
                 Map<String, Object> map = yaml.load(config.saveToString());
-                gen.writeObject(map.get("i"));
+                writeSafeValue(gen, map.get("i"));
             }
         }, (p, deserializationContext) -> {
             JsonNode node = p.readValueAsTree();
@@ -67,5 +76,39 @@ public class ItemStackSerialization {
             }
             return null;
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void writeSafeValue(com.fasterxml.jackson.core.JsonGenerator gen, Object value) throws java.io.IOException {
+        if (value == null) {
+            gen.writeNull();
+        } else if (value instanceof String s) {
+            gen.writeString(s);
+        } else if (value instanceof Boolean b) {
+            gen.writeBoolean(b);
+        } else if (value instanceof Integer i) {
+            gen.writeNumber(i);
+        } else if (value instanceof Long l) {
+            gen.writeNumber(l);
+        } else if (value instanceof Double d) {
+            gen.writeNumber(d);
+        } else if (value instanceof Float f) {
+            gen.writeNumber(f);
+        } else if (value instanceof Map m) {
+            gen.writeStartObject();
+            for (var entry : ((Map<String, Object>) m).entrySet()) {
+                gen.writeFieldName(entry.getKey());
+                writeSafeValue(gen, entry.getValue());
+            }
+            gen.writeEndObject();
+        } else if (value instanceof List list) {
+            gen.writeStartArray();
+            for (Object item : list) {
+                writeSafeValue(gen, item);
+            }
+            gen.writeEndArray();
+        } else {
+            gen.writeString(value.toString());
+        }
     }
 }

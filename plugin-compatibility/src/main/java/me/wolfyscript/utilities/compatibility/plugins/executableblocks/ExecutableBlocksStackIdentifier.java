@@ -2,6 +2,7 @@ package me.wolfyscript.utilities.compatibility.plugins.executableblocks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ssomar.executableblocks.executableblocks.ExecutableBlocksManager;
@@ -29,7 +30,9 @@ public class ExecutableBlocksStackIdentifier implements StackIdentifier {
 
     public static final NamespacedKey ID = NamespacedKey.wolfyutilties("executableblocks");
 
+    @JsonIgnore
     private final ExecutableBlocksIntegration integration;
+    @JsonIgnore
     private final ExecutableBlocksManager manager;
     private final String id;
 
